@@ -1,0 +1,1 @@
+![TESTE](https://firebasestorage.googleapis.com/v0/b/herorpg-ced63.appspot.com/o/images%2FRobloxScreenShot20221218_215853541.png?alt=media&token=2f030077-f5f4-4731-b43d-76147132d5e7)
