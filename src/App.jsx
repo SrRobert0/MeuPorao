@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 function App() {
   const [file, setFile] = useState();
   const [list, setList] = useState([]);
+  const [load, setLoad] = useState();
 
   const firebaseConfig = {
     apiKey: "AIzaSyCb29pBrD7WqfPyrFGmvgQbx2mAvWTgnAc",
@@ -46,9 +47,7 @@ function App() {
     uploadImage.on(
       "state_changed",
       (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log("Upload is " + progress + "% done");
+        setLoad(`Envio está ${(snapshot.bytesTransferred / snapshot.totalBytes) * 100}% feito.`);
         switch (snapshot.state) {
           case "paused":
             console.log("Upload is paused");
@@ -79,7 +78,7 @@ function App() {
       () => {
         // Upload completed successfully, now we can get the download URL
         getDownloadURL(uploadImage.snapshot.ref).then((downloadURL) => {
-          console.log("File available at", downloadURL);
+          setLoad("Envio concluído.")
           MontaLista();
         });
       }
@@ -109,6 +108,7 @@ function App() {
         />
         <button onClick={Enviar}>Enviar</button>
       </div>
+      <div className="Load">{load}</div>
       <div className="Lista">
         <ul>
           {list.map((item, key) => {
