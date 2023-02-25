@@ -1,3 +1,15 @@
+import {
+  Center,
+  Button,
+  Input,
+  ListItem,
+  Progress,
+  UnorderedList,
+  Flex,
+  Box,
+  VStack,
+  Spacer,
+} from "@chakra-ui/react";
 import { initializeApp } from "firebase/app";
 import {
   getDownloadURL,
@@ -12,6 +24,8 @@ function App() {
   const [file, setFile] = useState();
   const [list, setList] = useState([]);
   const [load, setLoad] = useState();
+  const [loadValue, setLoadValue] = useState();
+  const [loaded, setLoaded] = useState(false);
 
   const firebaseConfig = {
     apiKey: "AIzaSyCb29pBrD7WqfPyrFGmvgQbx2mAvWTgnAc",
@@ -26,7 +40,7 @@ function App() {
   const storage = getStorage(app);
 
   useEffect(() => {
-    MontaLista()
+    MontaLista();
   }, []);
 
   async function MontaLista() {
@@ -37,6 +51,24 @@ function App() {
   }
 
   function Enviar() {
+    const docType = getFileExtension(file.name)
+    
+    switch(docType) {
+      case "jpg" :
+      case "jpeg" :
+      case "png" :
+        EnviarImagem();
+        break;
+      default:
+        setLoad("Tipo de arquivo não suportado.");
+    }
+  }
+
+  function getFileExtension(fileName) {
+    return fileName.split('.').pop();
+  }
+
+  function EnviarImagem() {
     const nowImageRef = ref(storage, `images/${file.name}`);
     const metadata = {
       contentType: "image/jpeg",
@@ -47,7 +79,16 @@ function App() {
     uploadImage.on(
       "state_changed",
       (snapshot) => {
-        setLoad(`Envio está ${(snapshot.bytesTransferred / snapshot.totalBytes) * 100}% feito.`);
+        setLoaded(true);
+        setLoadValue(
+          ((snapshot.bytesTransferred / snapshot.totalBytes) * 100).toFixed(2)
+        );
+        setLoad(
+          `Enviando: ${(
+            (snapshot.bytesTransferred / snapshot.totalBytes) *
+            100
+          ).toFixed(2)}%`
+        );
         switch (snapshot.state) {
           case "paused":
             console.log("Upload is paused");
@@ -78,7 +119,7 @@ function App() {
       () => {
         // Upload completed successfully, now we can get the download URL
         getDownloadURL(uploadImage.snapshot.ref).then((downloadURL) => {
-          setLoad("Envio concluído.")
+          setLoad("Envio concluído.");
           MontaLista();
         });
       }
@@ -86,37 +127,64 @@ function App() {
   }
 
   function Baixar(item) {
-    const a = document.createElement("a");
-
-    getDownloadURL(ref(storage, item._location.path))
-    .then((url) => {
+    getDownloadURL(ref(storage, item._location.path)).then((url) => {
+      let a = document.createElement("a");
       a.setAttribute("href", url);
       a.setAttribute("target", "_blank");
       a.click();
-    })
+    });
   }
 
   return (
-    <div className="App">
-      <div className="Adiciona">
-        Arquivo:{" "}
-        <input
-          type="file"
-          onChange={(e) => {
-            setFile(e.target.files[0]);
-          }}
-        />
-        <button onClick={Enviar}>Enviar</button>
-      </div>
-      <div className="Load">{load}</div>
-      <div className="Lista">
-        <ul>
-          {list.map((item, key) => {
-            return <li key={key} onClick={() => {Baixar(item)}}>{item.name}</li>;
-          })}
-        </ul>
-      </div>
-    </div>
+    <Center w="100%">
+      <VStack spacing={5} w="50%">
+        <Box className="Adiciona" mt="50px">
+          <Input
+            type="file"
+            onChange={(e) => {
+              setFile(e.target.files[0]);
+            }}
+            pt="30px"
+            pb="60px"
+          />
+          <Flex mt="30px">
+            <Spacer />
+            <Button onClick={Enviar}>Enviar</Button>
+          </Flex>
+        </Box>
+        <Box className="Load" w="80%">
+          {loaded && (
+            <>
+              {load}
+              <Progress
+                value={loadValue}
+                colorScheme={loadValue < 100 ? "cyan" : "green"}
+                hasStripe={loadValue < 100 ? true : false}
+                isAnimated={true}
+                mt="5px"
+                mb="10px"
+              />
+            </>
+          )}
+        </Box>
+        <Box className="Lista" overflow="auto">
+          <UnorderedList styleType="none" spacing={4}>
+            {list.map((item, key) => {
+              return (
+                <ListItem
+                  key={key}
+                  onClick={() => {
+                    Baixar(item);
+                  }}
+                >
+                  {item.name}
+                </ListItem>
+              );
+            })}
+          </UnorderedList>
+        </Box>
+      </VStack>
+    </Center>
   );
 }
 
