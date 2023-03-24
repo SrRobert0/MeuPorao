@@ -34,7 +34,6 @@ export default function Principal() {
   const [load, setLoad]                   = useState();
   const [loadValue, setLoadValue]         = useState();
   const [loaded, setLoaded]               = useState(false);
-  const [deleting, setDeleting]           = useState({objectName: ""})
 
   const [imagesList, setImagesList]       = useState([]);
   const [documentsList, setDocumentsList] = useState([]);
