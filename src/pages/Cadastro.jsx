@@ -81,7 +81,7 @@ export default function Cadastro() {
   return (
     <Box h="100vh" w="100%" bg="gray" className="formBox">
       <Center h="100vh">
-        <FormControl w="350px" bg="WhiteSmoke" p="20px" borderRadius={10}>
+        <FormControl w="350px" bg="WhiteSmoke" className="formBox" p="20px" borderRadius={10}>
           <Center mb="30px">
             <Heading>Cadastro</Heading>
           </Center>
