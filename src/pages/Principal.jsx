@@ -189,7 +189,15 @@ export default function Principal() {
         MountRefsList();
       })
       .catch((err) => {
-        console.log(err);
+        Swal.fire({
+          position: 'bottom-end',
+          icon: 'error',
+          title: 'Ocorreu um erro ao tentar excluir o arquivo!',
+          showConfirmButton: false,
+          backdrop: false,
+          timer: 2000,
+          timerProgressBar: true,
+        })
       });
   }
 
