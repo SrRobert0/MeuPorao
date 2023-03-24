@@ -40,14 +40,14 @@ export default function Principal() {
   const { documentsList, imagesList, generalList, MountRefsList } =
     useContext(ListsContext);
 
-  const [username, setUsername] = useState();
+  const [userInfo, setUserInfo] = useState();
 
   const navigate = useNavigate();
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUsername(user.displayName);
+        setUserInfo(user.uid);
 
         MountRefsList();
       } else {
@@ -66,25 +66,32 @@ export default function Principal() {
     const docType = getFileExtension(file.name);
     let reference, content;
 
+    console.log(docType);
+
     // Adicionar: PDF, Executáveis, videos, audios
 
     switch (docType) {
-      case ("jpg", "jpeg", "png"):
+      case "jpg":
+      case "jpeg":
+      case "png":
         reference = "Imagens";
         content = "image";
         break;
+
       case "pdf":
         reference = "Documentos";
         content = "document";
         break;
+
       default:
         reference = "Geral";
         content = "document";
+        break;
     }
 
     const nowDocumentRef = ref(
       storage,
-      `${username}/${reference}/${file.name}`
+      `${userInfo}/${reference}/${file.name}`
     );
     const metadata = {
       contentType: `${content}/${docType}`,

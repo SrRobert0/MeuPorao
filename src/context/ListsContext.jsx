@@ -26,19 +26,19 @@ export const ListsProvider = ({children}) => {
 
     async function MountRefsList() {
             onAuthStateChanged(auth, (user) => {            
-            const documentsRef = ref(storage, `${user.displayName}/Documentos`);
+            const documentsRef = ref(storage, `${user.uid}/Documentos`);
             list(documentsRef).then((response) => {
               setDocumentsList(response.items);
               //console.log(documentsList);
             });
         
-            const ImagesRef = ref(storage, `${user.displayName}/Imagens`);
+            const ImagesRef = ref(storage, `${user.uid}/Imagens`);
             list(ImagesRef).then((response) => {
               setImagesList(response.items);
               // console.log(imagesList);
             });
         
-            const generalRef = ref(storage, `${user.displayName}/Geral`);
+            const generalRef = ref(storage, `${user.uid}/Geral`);
             list(generalRef).then((response) => {
               setGeneralList(response.items);
               //console.log(generalList);
