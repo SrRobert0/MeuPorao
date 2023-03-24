@@ -6,6 +6,7 @@ import App from "./App";
 import Cadastro from "./pages/Cadastro";
 import Login from "./pages/Login";
 import Principal from "./pages/Principal";
+import "./styles/responsiveStyle.css";
 
 const route = createBrowserRouter([
   {

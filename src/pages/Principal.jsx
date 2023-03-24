@@ -203,8 +203,8 @@ export default function Principal() {
 
   return (
     <Center w="100%">
-      <VStack spacing={5} w="50%">
-        <Box className="Adiciona" mt="50px">
+      <VStack spacing={5} className="container">
+        <Box className="Adiciona" mt="50px" w="80%">
           <Input
             type="file"
             onChange={(e) => {
@@ -244,10 +244,11 @@ export default function Principal() {
               borderColor="#aaa"
               borderRadius="10px"
             >
-              <Accordion border="#0000" allowMultiple>
+              <Accordion border="#0000"  allowMultiple>
                 <AccordionItem>
                   <AccordionButton
                     background="#0002"
+                    borderTop="10px"
                     _hover={{background: "#0001"}}
                   >
                     <Box as="span" flex="1" textAlign="left">
@@ -334,12 +335,13 @@ export default function Principal() {
               w="100%"
               border="1px"
               borderColor="#aaa"
-              borderRadius="5px"
+              borderRadius="10px"
             >
               <Accordion border="#0000" allowMultiple>
                 <AccordionItem>
                   <AccordionButton
                     background="#0002"
+                    borderTop="10px"
                     _hover={{background: "#0001"}}
                   >
                     <Box as="span" flex="1" textAlign="left">
@@ -426,12 +428,13 @@ export default function Principal() {
               w="100%"
               border="1px"
               borderColor="#aaa"
-              borderRadius="5px"
+              borderRadius="10px"
             >
               <Accordion border="#0000" allowMultiple>
                 <AccordionItem>
                   <AccordionButton
                     background="#0002"
+                    borderTop="10px"
                     _hover={{background: "#0001"}}
                   >
                     <Box as="span" flex="1" textAlign="left">
