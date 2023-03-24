@@ -131,6 +131,7 @@ export default function ItemList({ refName, items }) {
                                 setDeleting({ objectName: "" });
                               }, 2500);
                             }}
+                            className="listIcon"
                           >
                             <DeleteIcon color="white" size="10px" m="5px" />
                           </Box>
@@ -142,9 +143,8 @@ export default function ItemList({ refName, items }) {
                             borderRadius="5px"
                             cursor="pointer"
                             _hover={{ background: "yellow.500" }}
-                            onClick={() => {
-                              Delete(item);
-                            }}
+                            onClick={() => {Delete(item)}}
+                            className="listIcon"
                           >
                             <WarningTwoIcon color="white" size="10px" m="5px" />
                           </Box>
@@ -156,6 +156,7 @@ export default function ItemList({ refName, items }) {
                           cursor="pointer"
                           _hover={{ background: "linkedin.400" }}
                           onClick={() => Share(item)}
+                          className="listIcon"
                         >
                           <LinkIcon color="white" size="10px" m="5px" />
                         </Box>
@@ -166,6 +167,7 @@ export default function ItemList({ refName, items }) {
                           cursor="pointer"
                           _hover={{ background: "facebook.500" }}
                           onClick={() => View(item)}
+                          className="listIcon"
                         >
                           <ViewIcon color="white" size="10px" m="5px" />
                         </Box>
