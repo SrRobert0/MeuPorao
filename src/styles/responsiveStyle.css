@@ -1,17 +1,37 @@
+.formLink {
+    color: dodgerblue;
+}
+
 @media screen and (max-width: 767px) {
     .container {
         width: 100%;
     }    
+
+    .formBox {
+        background: none !important;
+    }
+
+    .listItem {
+        font-size: 8pt;
+    }
 }
 
 @media screen and (min-width: 768px) and (max-width : 1023px){
     .container {
         width: 75%;
     }    
+
+    .listItem {
+        font-size: 10pt;
+    }
 }
 
 @media screen and (min-width: 1024px) {
     .container {
         width: 50%;
     }    
+
+    .listItem {
+        font-size: 10pt;
+    }
 }

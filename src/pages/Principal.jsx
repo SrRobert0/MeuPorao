@@ -2,44 +2,26 @@ import {
   Center,
   Button,
   Input,
-  ListItem,
   Progress,
   UnorderedList,
   Flex,
   Box,
   VStack,
   Spacer,
-  AccordionItem,
-  AccordionButton,
-  Accordion,
-  AccordionIcon,
-  AccordionPanel,
 } from "@chakra-ui/react";
-import { DeleteIcon, ViewIcon, WarningTwoIcon } from "@chakra-ui/icons";
 import { initializeApp } from "firebase/app";
-import {
-  deleteObject,
-  getDownloadURL,
-  getStorage,
-  list as fbList,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
-import { useEffect, useState } from "react";
-import Swal from "sweetalert2";
+import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { useContext, useEffect, useState } from "react";
 import ItemList from "../components/ItemList";
+import { ListsContext } from "../context/ListsContext";
+import { useNavigate } from "react-router-dom";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 export default function Principal() {
-  const [file, setFile]                   = useState();
-  const [load, setLoad]                   = useState();
-  const [loadValue, setLoadValue]         = useState();
-  const [loaded, setLoaded]               = useState(false);
-
-  const [imagesList, setImagesList]       = useState([]);
-  const [documentsList, setDocumentsList] = useState([]);
-  const [generalList, setGeneralList]     = useState([]);
-
-  const [username, setUsername]           = useState("Roberto");
+  const [file, setFile] = useState();
+  const [load, setLoad] = useState();
+  const [loadValue, setLoadValue] = useState();
+  const [loading, setLoading] = useState(false);
 
   const firebaseConfig = {
     apiKey: "AIzaSyAwi9b_qwMv90_fQ19d28cyhCfk1V9en_U",
@@ -50,30 +32,33 @@ export default function Principal() {
     appId: "1:207411264327:web:080c6f1bf58065be0a6a62",
     measurementId: "G-5Q0ZSP9QWQ",
   };
+
   const app = initializeApp(firebaseConfig);
   const storage = getStorage(app);
+  const auth = getAuth(app);
+
+  const { documentsList, imagesList, generalList, MountRefsList } =
+    useContext(ListsContext);
+
+  const [username, setUsername] = useState();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    MountRefsList();
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUsername(user.displayName);
+
+        MountRefsList();
+      } else {
+        navigate("/");
+      }
+    });
   }, []);
 
-  async function MountRefsList() {
-    const documentsRef = await ref(storage, `${username}/Documentos`);
-    fbList(documentsRef).then((response) => {
-      setDocumentsList(response.items);
-      //console.log(documentsList);
-    });
-
-    const ImagesRef = await ref(storage, `${username}/Imagens`);
-    fbList(ImagesRef).then((response) => {
-      setImagesList(response.items);
-      // console.log(imagesList);
-    });
-
-    const generalRef = await ref(storage, `${username}/Geral`);
-    fbList(generalRef).then((response) => {
-      setGeneralList(response.items);
-      //console.log(generalList);
+  function SignOut() {
+    auth.signOut().then(() => {
+      navigate("/");
     });
   }
 
@@ -116,7 +101,7 @@ export default function Principal() {
     data.on(
       "state_changed",
       (snapshot) => {
-        setLoaded(true);
+        setLoading(true);
         setLoadValue(
           ((snapshot.bytesTransferred / snapshot.totalBytes) * 100).toFixed(0)
         );
@@ -155,55 +140,22 @@ export default function Principal() {
       },
       () => {
         // Upload completed successfully, now we can get the download URL
-        getDownloadURL(data.snapshot.ref).then((downloadURL) => {
-          setLoad("Envio concluído.");
-          MountRefsList();
-        });
+        setLoad("Envio concluído.");
+        MountRefsList();
       }
     );
-  }
-
-  function View(item) {
-    getDownloadURL(ref(storage, item._location.path)).then((url) => {
-      let a = document.createElement("a");
-      a.setAttribute("href", url);
-      a.setAttribute("target", "_blank");
-      a.click();
-    });
-  }
-
-  function Delete(item) {
-    deleteObject(ref(storage, item._location.path))
-      .then(() => {
-        Swal.fire({
-          position: 'bottom-end',
-          icon: 'success',
-          title: 'Arquivo excluído com sucesso!',
-          showConfirmButton: false,
-          backdrop: false,
-          timer: 2000,
-          timerProgressBar: true,
-        })
-
-        MountRefsList();
-      })
-      .catch((err) => {
-        Swal.fire({
-          position: 'bottom-end',
-          icon: 'error',
-          title: 'Ocorreu um erro ao tentar excluir o arquivo!',
-          showConfirmButton: false,
-          backdrop: false,
-          timer: 2000,
-          timerProgressBar: true,
-        })
-      });
   }
 
   return (
     <Center w="100%">
       <VStack spacing={5} className="container">
         <Box className="Adiciona" mt="50px" w="80%">
+          <Flex mb="30px">
+            <Button colorScheme="red" onClick={SignOut}>
+              Sair
+            </Button>
+            <Spacer />
+          </Flex>
           <Input
             type="file"
             onChange={(e) => {
@@ -214,11 +166,11 @@ export default function Principal() {
           />
           <Flex mt="30px">
             <Spacer />
-            <Button onClick={Enviar}>Enviar</Button>
+            <Button colorScheme="linkedin" onClick={Enviar}>Enviar</Button>
           </Flex>
         </Box>
         <Box className="Load" w="80%">
-          {loaded && (
+          {loading && (
             <>
               {load}
               <Progress
@@ -233,20 +185,15 @@ export default function Principal() {
           )}
         </Box>
         <Box w="80%" overflow="none" className="Lista">
-          <UnorderedList styleType="none" ms="0px" w="100%" spacing="10px">   
-
+          <UnorderedList styleType="none" ms="0px" w="100%" spacing="10px">
             {/* Aba dos Documentos */}
-
             <ItemList refName="Documentos" items={documentsList} />
 
             {/* Aba das Imagens */}
-
             <ItemList refName="Imagens" items={imagesList} />
 
             {/* Aba Geral */}
-
             <ItemList refName="Geral" items={generalList} />
-
           </UnorderedList>
         </Box>
       </VStack>

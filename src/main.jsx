@@ -3,6 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
+import { ListsProvider } from "./context/ListsContext";
 import Cadastro from "./pages/Cadastro";
 import Login from "./pages/Login";
 import Principal from "./pages/Principal";
@@ -23,7 +24,9 @@ const route = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ChakraProvider>
-      <RouterProvider router={route} />
+        <ListsProvider>
+          <RouterProvider router={route} />
+        </ListsProvider>
     </ChakraProvider>
   </React.StrictMode>
 );
