@@ -94,7 +94,7 @@ export default function Cadastro() {
           <Center mt="30px">
             <Button colorScheme="linkedin" onClick={Cadastrar} >Cadastrar</Button>
           </Center>
-          <FormHelperText mt="10px">Já tem uma conta? <Link to='/' className="formLink">Clique aqui!</Link></FormHelperText>
+          <FormHelperText mt="10px">Já tem uma conta? <Link to='/Login' className="formLink">Clique aqui!</Link></FormHelperText>
         </FormControl>
       </Center>
     </Box>

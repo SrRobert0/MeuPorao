@@ -1,7 +1,6 @@
 import {
   Center,
   Button,
-  Input,
   Progress,
   UnorderedList,
   Flex,
@@ -16,6 +15,8 @@ import ItemList from "../components/ItemList";
 import { ListsContext } from "../context/ListsContext";
 import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import Swal from "sweetalert2";
+import { AlertContext } from "../context/AlertContext";
 
 export default function Principal() {
   const [file, setFile] = useState();
@@ -37,12 +38,18 @@ export default function Principal() {
   const storage = getStorage(app);
   const auth = getAuth(app);
 
-  const { documentsList, imagesList, generalList, MountRefsList } =
-    useContext(ListsContext);
+  const { documentsList, imagesList, videosList, audiosList, generalList, MountRefsList } = useContext(ListsContext);
+  const { GetAlert, GetAlertActive } = useContext(AlertContext);
 
   const [userInfo, setUserInfo] = useState();
 
   const navigate = useNavigate();
+
+  // Criar o input que irá armazenar o arquivo escolhido
+  const inputFile = document.createElement("input");
+  inputFile.setAttribute("type", "file");
+
+  inputFile.addEventListener("change", (e) => {setFile(e.target.files[0])})
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -51,41 +58,96 @@ export default function Principal() {
 
         MountRefsList();
       } else {
-        navigate("/");
+        navigate("/Login");
       }
     });
   }, []);
 
   function SignOut() {
     auth.signOut().then(() => {
-      navigate("/");
+      navigate("/Login");
     });
   }
 
-  function Enviar() {
+  function CheckFile() {
+    if (file == null) {
+      Swal.fire({
+        icon: "info",
+        text: "Selecione um arquivo!",
+        showConfirmButton: false,
+        position: "bottom-end",
+        backdrop: false,
+        timer: 1000,
+        timerProgressBar: true,
+      })
+    } else {
+      Send();
+    } 
+  }
+
+  function Send() {
     const docType = getFileExtension(file.name);
-    let reference, content;
+    let reference;
 
     console.log(docType);
 
     // Adicionar: PDF, Executáveis, videos, audios
 
     switch (docType) {
+      case "pdf":
+      case "ppt":
+      case "pptx":
+      case "doc":
+      case "docx":
+      case "txt":
+      case "xls":
+      case "xlsx":
+      case "rtf":
+      case "xml":
+        reference = "Documentos";
+        GetAlert("Documentos");
+        break;
+
       case "jpg":
       case "jpeg":
       case "png":
+      case "gif":
+      case "bmp":
+      case "svg":
+      case "tiff":
+      case "eps":
         reference = "Imagens";
-        content = "image";
+        GetAlert("Imagens");
         break;
 
-      case "pdf":
-        reference = "Documentos";
-        content = "document";
+      case "mp4":
+      case "mov":
+      case "wmv":
+      case "avi":
+      case "avchd":
+      case "flv":
+      case "f4v":
+      case "swf":
+      case "mkv":
+      case "webm":
+      case "mpeg-2":
+        reference = "Videos";
+        GetAlert("Vídeos");
+        break;
+        
+      case "mp3":
+      case "flac":
+      case "wav":
+      case "aac":
+      case "mqa":
+      case "ogg":
+        reference = "Audios";
+        GetAlert("Áudios");
         break;
 
       default:
         reference = "Geral";
-        content = "document";
+        GetAlert("Geral");
         break;
     }
 
@@ -94,10 +156,14 @@ export default function Principal() {
       `${userInfo}/${reference}/${file.name}`
     );
     const metadata = {
-      contentType: `${content}/${docType}`,
+      contentType: `${file.type}`,
     };
     const uploadDocument = uploadBytesResumable(nowDocumentRef, file, metadata);
     Upload(uploadDocument);
+  }
+
+  function ChooseFile() {
+    inputFile.click();
   }
 
   function getFileExtension(fileName) {
@@ -147,14 +213,46 @@ export default function Principal() {
       },
       () => {
         // Upload completed successfully, now we can get the download URL
-        setLoad("Envio concluído.");
+        FinalizeLoad();
+        setFile(null);
         MountRefsList();
       }
     );
   }
 
+  function FinalizeLoad() {
+    setLoad("Envio concluído.");
+    GetAlertActive(true);
+    setTimeout(() => {setLoading(false)} , 4000);
+  }
+
+  function FileSize() {
+    if (file == null) {
+      return <>0 b</>
+    } 
+    
+    let dataType = "B"; 
+    let strSize     = `${file.size}`;
+    let size = file.size;
+
+    if (strSize.length > 3) {
+      dataType = "KB";
+      size = (size / 1000).toFixed(2);
+    } else if (strSize.length > 6) {
+      dataType = "MB";
+      size = (size / 1000000).toFixed(2);
+    } else if (strSize.length > 9) {
+      dataType = "GB";
+      size = (size / 1000000000).toFixed(2);
+    }
+
+    return (
+      <>{`${size} ${dataType}`}</>
+    )
+  }
+
   return (
-    <Center w="100%">
+    <Center w="100%" mb="50px">
       <VStack spacing={5} className="container">
         <Box className="Adiciona" mt="50px" w="80%">
           <Flex mb="30px">
@@ -163,17 +261,20 @@ export default function Principal() {
             </Button>
             <Spacer />
           </Flex>
-          <Input
-            type="file"
-            onChange={(e) => {
-              setFile(e.target.files[0]);
-            }}
-            pt="30px"
-            pb="60px"
-          />
-          <Flex mt="30px">
+          <Box background="#0001" w="100%" border="1px" borderColor="#aaa" borderRadius="10px">
+            <Flex m="10px" direction="column" justify="space-between" gap="5px">
+              <Box>
+                Arquivo: {(file != null) && (file.name)} {(file == null) && ("Selecione um arquivo.")}
+              </Box>
+              <Box>
+                Tamanho: {FileSize()}
+              </Box>
+            </Flex>
+          </Box>
+          <Flex mt="30px" gap="10px">
             <Spacer />
-            <Button colorScheme="linkedin" onClick={Enviar}>Enviar</Button>
+            <Button colorScheme="facebook" onClick={ChooseFile}>Escolher Arquivo</Button>
+            <Button colorScheme="linkedin" onClick={CheckFile}>Enviar</Button>
           </Flex>
         </Box>
         <Box className="Load" w="80%">
@@ -182,7 +283,7 @@ export default function Principal() {
               {load}
               <Progress
                 value={loadValue}
-                colorScheme={loadValue < 100 ? "cyan" : "green"}
+                colorScheme={loadValue < 100 ? "facebook" : "linkedin"}
                 hasStripe={loadValue < 100 ? true : false}
                 isAnimated={true}
                 mt="5px"
@@ -198,6 +299,12 @@ export default function Principal() {
 
             {/* Aba das Imagens */}
             <ItemList refName="Imagens" items={imagesList} />
+
+            {/* Aba das Vídeos */}
+            <ItemList refName="Vídeos" items={videosList} />
+
+            {/* Aba das Áudios */}
+            <ItemList refName="Áudios" items={audiosList} />
 
             {/* Aba Geral */}
             <ItemList refName="Geral" items={generalList} />

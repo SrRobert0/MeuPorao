@@ -9,11 +9,14 @@ import {
   Flex,
   UnorderedList,
   ListItem,
+  Circle,
+  Spacer,
 } from "@chakra-ui/react";
 import { initializeApp } from "firebase/app";
 import { deleteObject, getDownloadURL, getStorage, ref } from "firebase/storage";
 import { useContext, useState } from "react";
 import Swal from "sweetalert2";
+import { AlertContext } from "../context/AlertContext";
 import { ListsContext } from "../context/ListsContext";
 
 export default function ItemList({ refName, items }) {
@@ -33,6 +36,7 @@ export default function ItemList({ refName, items }) {
     const storage = getStorage(app);
 
     const { MountRefsList } = useContext(ListsContext);
+    const { alert, alertActive, GetAlertActive } = useContext(AlertContext);
 
     function View(item) {
       getDownloadURL(ref(storage, item._location.path))
@@ -89,7 +93,7 @@ export default function ItemList({ refName, items }) {
     }
 
   return (
-    <ListItem w="100%" border="1px" borderColor="#aaa" borderRadius="10px">
+    <ListItem w="100%" border="1px" borderColor="#aaa" borderRadius="10px" onClick={() => {if (alert == refName) {GetAlertActive(false)}}}>
       <Accordion border="#0000" allowMultiple>
         <AccordionItem>
         {({ isExpanded }) => (
@@ -100,9 +104,13 @@ export default function ItemList({ refName, items }) {
             borderBottomRadius={isExpanded ? "0px" : "10px"}
             _hover={{ background: "#0001" }}
           >
-            <Box as="span" flex="1" textAlign="left">
+            <Flex as="span" direction="row" align="center" gap="10px" textAlign="left">
               {refName}
-            </Box>
+              {(alert == refName) && (alertActive) && (
+              <Circle background="whatsapp.500" w="10px" h="10px" me="5px" className="alertAnimation" />
+              )}
+            </Flex>
+            <Spacer />
             <AccordionIcon />
           </AccordionButton>
           <AccordionPanel mt="12px">
@@ -111,13 +119,13 @@ export default function ItemList({ refName, items }) {
                 return (
                   <ListItem key={key} className="listItem">
                     <Flex
-                      flexDirection="row"
-                      align="center"
+                      flexDirection="column"
                       justify="space-between"
+                      mt={key >= 1 ? "25px" : ""}
                       me="30px"
                     >
                       {item.name}
-                      <Flex flexDirection="row" align="center" gap="15px">
+                      <Flex borderTop="1px" borderColor="#0004" pt="5px" flexDirection="row" align="center" gap="15px">
                         {!(deleting.objectName == item.name) && (
                           <Box
                             bg="red.400"

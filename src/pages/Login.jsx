@@ -34,14 +34,6 @@ export default function Login() {
 
     const navigate = useNavigate();
 
-    useEffect(() => {
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          navigate('/Principal')
-        }
-      })
-    })
-
     function LogIn() {
       signInWithEmailAndPassword(auth, email, password)
       .then(() => {

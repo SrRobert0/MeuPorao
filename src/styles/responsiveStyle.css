@@ -6,6 +6,11 @@
     transition: background .3s;
 }
 
+.alertAnimation {
+    animation: alertAnimation linear infinite;
+    animation-duration: 1.5s;
+}
+
 @media screen and (max-width: 767px) {
     .container {
         width: 100%;
@@ -38,4 +43,11 @@
     .listItem {
         font-size: 10pt;
     }
+}
+
+/* Animações */
+@keyframes alertAnimation {
+    0%   {opacity: 100%}
+    50%  {opacity: 50%}
+    100% {opacity: 100%}   
 }
