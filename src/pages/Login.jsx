@@ -91,7 +91,7 @@ export default function Login() {
               Logar
             </Button>
           </Center>
-          <FormHelperText mt="10px">
+          <FormHelperText mt="15px">
             Não tem uma conta?{" "}
             <Link to="/Cadastro" className="formLink">
               Clique aqui!

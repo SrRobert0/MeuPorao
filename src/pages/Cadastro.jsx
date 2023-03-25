@@ -134,7 +134,7 @@ export default function Cadastro() {
               Cadastrar
             </Button>
           </Center>
-          <FormHelperText mt="10px">
+          <FormHelperText mt="15px">
             Já tem uma conta?{" "}
             <Link to="/Login" className="formLink">
               Clique aqui!
