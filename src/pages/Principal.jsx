@@ -8,67 +8,71 @@ import {
   VStack,
   Spacer,
 } from "@chakra-ui/react";
-import { initializeApp } from "firebase/app";
-import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { ref, uploadBytesResumable } from "firebase/storage";
 import { useContext, useEffect, useState } from "react";
 import ItemList from "../components/ItemList";
 import { ListsContext } from "../context/ListsContext";
 import { useNavigate } from "react-router-dom";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import Swal from "sweetalert2";
 import { AlertContext } from "../context/AlertContext";
+import { auth, storage } from "../Firebase/FbApp";
 
 export default function Principal() {
-  const [file, setFile] = useState();
-  const [load, setLoad] = useState();
+  const [file, setFile]           = useState();
+  const [load, setLoad]           = useState();
   const [loadValue, setLoadValue] = useState();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading]     = useState(false);
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAwi9b_qwMv90_fQ19d28cyhCfk1V9en_U",
-    authDomain: "desenvolvimento-a7043.firebaseapp.com",
-    projectId: "desenvolvimento-a7043",
-    storageBucket: "desenvolvimento-a7043.appspot.com",
-    messagingSenderId: "207411264327",
-    appId: "1:207411264327:web:080c6f1bf58065be0a6a62",
-    measurementId: "G-5Q0ZSP9QWQ",
-  };
+  // Pega todas as listas de arquivos do context
+  const {
+    documentsList,
+    imagesList,
+    videosList,
+    audiosList,
+    generalList,
+    MountRefsList,
+  } = useContext(ListsContext);
 
-  const app = initializeApp(firebaseConfig);
-  const storage = getStorage(app);
-  const auth = getAuth(app);
-
-  const { documentsList, imagesList, videosList, audiosList, generalList, MountRefsList } = useContext(ListsContext);
+  // Funções originadas do contexto utilizadas para determinar se o alerta de adição de arquivo está ativo e em qual das lista deve estar
   const { GetAlert, GetAlertActive } = useContext(AlertContext);
 
+  // Será preenchido com o id do usuário
   const [userInfo, setUserInfo] = useState();
 
   const navigate = useNavigate();
 
-  // Criar o input que irá armazenar o arquivo escolhido
+  // Cria o input que irá armazenar o arquivo escolhido
   const inputFile = document.createElement("input");
   inputFile.setAttribute("type", "file");
-
-  inputFile.addEventListener("change", (e) => {setFile(e.target.files[0])})
+  inputFile.addEventListener("change", (e) => {
+    setFile(e.target.files[0]);
+  });
 
   useEffect(() => {
+    // Verifica se quem está acessando o site está logado/autenticado
     onAuthStateChanged(auth, (user) => {
+      // Se existir usuário(user), ele armazena o id do usuário e carregas as listas do arquivos
       if (user) {
         setUserInfo(user.uid);
 
         MountRefsList();
-      } else {
+      }
+      // Se não existir usuário(user), ele retorna para a tela de login
+      else {
         navigate("/Login");
       }
     });
   }, []);
 
+  // Função utilizada para deslogar
   function SignOut() {
     auth.signOut().then(() => {
       navigate("/Login");
     });
   }
 
+  // Verifica se há algum arquivo selecionado antes de enviar
   function CheckFile() {
     if (file == null) {
       Swal.fire({
@@ -79,20 +83,20 @@ export default function Principal() {
         backdrop: false,
         timer: 1000,
         timerProgressBar: true,
-      })
+      });
     } else {
       Send();
-    } 
+    }
   }
 
+  // Envia o arquivo selecionado
   function Send() {
+    // Armazena o tipo do arquivo e declara a variável que ira ser preenchida com a "pasta" de destino do arquivo
     const docType = getFileExtension(file.name);
     let reference;
 
-    console.log(docType);
-
-    // Adicionar: PDF, Executáveis, videos, audios
-
+    // switch que irá definir a "pasta" de destino do arquivo
+    // Obs: Não achei uma forma mais eficiente para realizar essa escolhar
     switch (docType) {
       case "pdf":
       case "ppt":
@@ -134,7 +138,7 @@ export default function Principal() {
         reference = "Videos";
         GetAlert("Vídeos");
         break;
-        
+
       case "mp3":
       case "flac":
       case "wav":
@@ -151,6 +155,8 @@ export default function Principal() {
         break;
     }
 
+    // Monta a referência do arquivo
+    // Obs: Utilizei o id do usuário na referência para que fosse impossível que dois ou mais usuários compartilhassem arquivos
     const nowDocumentRef = ref(
       storage,
       `${userInfo}/${reference}/${file.name}`
@@ -162,14 +168,17 @@ export default function Principal() {
     Upload(uploadDocument);
   }
 
+  // Efetua o click no input virtual para possibilitar a escolha do arquivo
   function ChooseFile() {
     inputFile.click();
   }
 
+  // Função que retorna a extensão do arquivo
   function getFileExtension(fileName) {
     return fileName.split(".").pop();
   }
 
+  // Função responsável por enviar o arquivo para o storage do Firebase
   function Upload(data) {
     data.on(
       "state_changed",
@@ -185,34 +194,51 @@ export default function Principal() {
           ).toFixed(0)}%`
         );
         switch (snapshot.state) {
-          case "paused":
-            console.log("Upload is paused");
-            break;
           case "running":
-            console.log("Upload is running");
+            console.log("Enviando.");
             break;
         }
       },
       (error) => {
-        // A full list of error codes is available at
-        // https://firebase.google.com/docs/storage/web/handle-errors
         switch (error.code) {
           case "storage/unauthorized":
-            // User doesn't have permission to access the object
-            break;
-          case "storage/canceled":
-            // User canceled the upload
+            Swal.fire({
+              icon: "error",
+              text: "Sem autorização!",
+              showConfirmButton: false,
+              position: "bottom-end",
+              backdrop: false,
+              timer: 1000,
+              timerProgressBar: true,
+            });
             break;
 
-          // ...
+          case "storage/canceled":
+            Swal.fire({
+              icon: "error",
+              text: "Envio cancelado!",
+              showConfirmButton: false,
+              position: "bottom-end",
+              backdrop: false,
+              timer: 1000,
+              timerProgressBar: true,
+            });
+            break;
 
           case "storage/unknown":
-            // Unknown error occurred, inspect error.serverResponse
+            Swal.fire({
+              icon: "error",
+              text: "Esse link é desconhecido!",
+              showConfirmButton: false,
+              position: "bottom-end",
+              backdrop: false,
+              timer: 1000,
+              timerProgressBar: true,
+            });
             break;
         }
       },
       () => {
-        // Upload completed successfully, now we can get the download URL
         FinalizeLoad();
         setFile(null);
         MountRefsList();
@@ -220,20 +246,24 @@ export default function Principal() {
     );
   }
 
+  // Avisa que o envio foi concluído e ativa o alerta
   function FinalizeLoad() {
     setLoad("Envio concluído.");
     GetAlertActive(true);
-    setTimeout(() => {setLoading(false)} , 4000);
+    setTimeout(() => {
+      setLoading(false);
+    }, 4000);
   }
 
+  // Verifica o tamanho do arquivo e trata para a exibição
   function FileSize() {
     if (file == null) {
-      return <>0 b</>
-    } 
-    
-    let dataType = "B"; 
-    let strSize  = `${file.size}`;
-    let size     = file.size;
+      return <>0 b</>;
+    }
+
+    let dataType = "B";
+    let strSize = `${file.size}`;
+    let size = file.size;
 
     if (strSize.length > 3 && strSize.length <= 6) {
       dataType = "KB";
@@ -246,9 +276,7 @@ export default function Principal() {
       size = (size / 1000000000).toFixed(2);
     }
 
-    return (
-      <>{`${size} ${dataType}`}</>
-    )
+    return <>{`${size} ${dataType}`}</>;
   }
 
   return (
@@ -261,20 +289,29 @@ export default function Principal() {
             </Button>
             <Spacer />
           </Flex>
-          <Box background="#0001" w="100%" border="1px" borderColor="#aaa" borderRadius="10px">
+          <Box
+            background="#0001"
+            w="100%"
+            border="1px"
+            borderColor="#aaa"
+            borderRadius="10px"
+          >
             <Flex m="10px" direction="column" justify="space-between" gap="5px">
               <Box>
-                Arquivo: {(file != null) && (file.name)} {(file == null) && ("Selecione um arquivo.")}
+                Arquivo: {file != null && file.name}{" "}
+                {file == null && "Selecione um arquivo."}
               </Box>
-              <Box>
-                Tamanho: {FileSize()}
-              </Box>
+              <Box>Tamanho: {FileSize()}</Box>
             </Flex>
           </Box>
           <Flex mt="30px" gap="10px">
             <Spacer />
-            <Button colorScheme="facebook" onClick={ChooseFile}>Escolher Arquivo</Button>
-            <Button colorScheme="linkedin" onClick={CheckFile}>Enviar</Button>
+            <Button colorScheme="facebook" onClick={ChooseFile}>
+              Escolher Arquivo
+            </Button>
+            <Button colorScheme="linkedin" onClick={CheckFile}>
+              Enviar
+            </Button>
           </Flex>
         </Box>
         <Box className="Load" w="80%">
