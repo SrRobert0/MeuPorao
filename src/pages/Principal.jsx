@@ -232,13 +232,13 @@ export default function Principal() {
     } 
     
     let dataType = "B"; 
-    let strSize     = `${file.size}`;
-    let size = file.size;
+    let strSize  = `${file.size}`;
+    let size     = file.size;
 
-    if (strSize.length > 3) {
+    if (strSize.length > 3 && strSize.length <= 6) {
       dataType = "KB";
       size = (size / 1000).toFixed(2);
-    } else if (strSize.length > 6) {
+    } else if (strSize.length > 6 && strSize.length <= 9) {
       dataType = "MB";
       size = (size / 1000000).toFixed(2);
     } else if (strSize.length > 9) {
