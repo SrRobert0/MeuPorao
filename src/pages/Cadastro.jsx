@@ -30,7 +30,6 @@ export default function Cadastro() {
     if (username.length == 0 || email.length == 0 || password.length == 0) {
       Swal.fire({
         title: "Erro ao efetuar login!",
-        icon: "info",
         text: "Não deixe nenhum campo vázio.",
         backdrop: false,
         position: "bottom-end",
@@ -135,7 +134,7 @@ export default function Cadastro() {
             </Button>
           </Center>
           <FormHelperText mt="15px">
-            Já tem uma conta?{" "}
+            Já tem uma conta?
             <Link to="/Login" className="formLink">
               Clique aqui!
             </Link>

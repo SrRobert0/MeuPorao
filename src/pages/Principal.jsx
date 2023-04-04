@@ -76,7 +76,6 @@ export default function Principal() {
   function CheckFile() {
     if (file == null) {
       Swal.fire({
-        icon: "info",
         text: "Selecione um arquivo!",
         showConfirmButton: false,
         position: "bottom-end",

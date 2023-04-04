@@ -25,7 +25,6 @@ export default function Login() {
     if (email.length == 0 || password.length == 0) {
       Swal.fire({
         title: "Erro ao efetuar login!",
-        icon: "info",
         text: "Não deixe nenhum campo vázio.",
         backdrop: false,
         position: "bottom-end",
@@ -44,8 +43,6 @@ export default function Login() {
         navigate("/Principal");
       })
       .catch((err) => {
-        //console.log("Erro ao efetuar login: " + err.message)
-
         Swal.fire({
           title: "Erro ao efetuar login!",
           icon: "error",
@@ -92,7 +89,7 @@ export default function Login() {
             </Button>
           </Center>
           <FormHelperText mt="15px">
-            Não tem uma conta?{" "}
+            Não tem uma conta?
             <Link to="/Cadastro" className="formLink">
               Clique aqui!
             </Link>
