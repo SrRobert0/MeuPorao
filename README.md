@@ -38,7 +38,7 @@ Utilizei essa biblioteca para fazer a paginação do site.
 
 ## Como Utilizar O Projeto
 
-Ao baixar o projeto, execute o comando `npm install` para instalar as dependências, e o comando `npm run start` para rodar o projeto.
+Ao baixar o projeto, execute o comando `npm install` para instalar as dependências, e o comando `npm run dev` para rodar o projeto.
 
 ## Considerações Finais
 
