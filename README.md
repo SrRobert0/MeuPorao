@@ -1,9 +1,8 @@
 # Projeto Meu Porão
 
-Esse é um projeto feito em ReactJs, o qual fiz visando aprender a utilizar uma biblioteca e também para utilizar suas funcionalidades.
+Esse é um projeto feito em ReactJs, o qual fiz visando aprender a utilizar o Firebase e também para utilizar suas funcionalidades.
 
 ## Descrição Do Projeto
-Antes de explicar as funcionalidades do site, gostaria de deixar claro que em hipótese nenhuma eu irei visualizar os arquivos que forem enviados, e nem as credências que forem utilizadas ao fazer login, que de certa forma eu nem tenho acesso.
 
 O projeto é basicamente um site que permite enviar qualquer tipo de arquivo para um armazenamento na nuvem, além de dar possibilidade de visualizar esses arquivos ou compartilhá-los.
 
@@ -17,7 +16,7 @@ Ao entrar na página principal, você estará possibilitado a enviar os seus arq
 + Áudios: Arquivos do tipo mp3, wav, ogg, entre outros.
 + Geral: Todos os arquivos que não tiveram suas extensões definidas no código virão para essa pasta.
 
-Cada arquivo terá 3 botões, que dão possibilidade de excluir, compartilhar(copiar o link do arquivo) e ver o arquivo.
+Cada arquivo terá 3 botões, que dão possibilidade de excluir, compartilhar(copiar o link do arquivo) e ver/baixar o arquivo.
 
 ### Bibliotecas Utilizadas
 
@@ -39,7 +38,7 @@ Utilizei essa biblioteca para fazer a paginação do site.
 
 ## Como Utilizar O Projeto
 
-Ao baixar o projeto, execute o comando `yarn install` para instalar as dependências, e o comando `yarn dev` para rodar o projeto.
+Ao baixar o projeto, execute o comando `npm install` para instalar as dependências, e o comando `npm run start` para rodar o projeto.
 
 ## Considerações Finais
 
